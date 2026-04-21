@@ -8,7 +8,7 @@ A robust, multi-layered orchestrator that dynamically manages Virtual Machines (
 
 The orchestrator is built as a suite of microservices, running locally via Docker Compose using host networking. 
 
-![System Arhcitecture]("./system-architecture.png")
+![System Arhcitecture]("./system-architecture.svg")
 
 ### Core Microservices
 
