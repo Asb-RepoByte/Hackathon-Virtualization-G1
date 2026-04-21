@@ -8,26 +8,12 @@ A robust, multi-layered orchestrator that dynamically manages Virtual Machines (
 
 The orchestrator is built as a suite of microservices, running locally via Docker Compose using host networking. 
 
-```mermaid
-graph TD
-    User([ Admin / User]) --> Admin[🖥️ Admin Server :8080]
-    
-    Admin --> VM[VM Manager :8000]
-    Admin --> Docker[Docker Manager :8001]
-    Admin --> LB[Load Balancer :8090]
-    Admin --> Sim[Traffic Simulator :8085]
-    
-    Docker -->|Orchestrates| LB
-    Docker -->|Checks State| VM
-    
-    VM -->|pyVmomi / deploy_ova| ESXi[(vSphere / ESXi Hosts)]
-    Docker -->|SSH / python_on_whales| Containers[(Docker Containers on VMs)]
-```
+![System Arhcitecture]("./system-architecture.png")
 
 ### Core Microservices
 
 #### 1. 🖥️ Admin Server (`admin_server.py` | Port 8080)
-The unified control panel and gateway. It serves an intuitive HTML dashboard and proxies API requests to all other microservices. This is the single pane of glass for monitoring and manual intervention.
+The unified control panel and gateway. It serves an intuitive HTML dashboard and have a direct access to all other microservices (for testing and adminstrative application). This is the single pane of glass for monitoring and manual intervention.
 
 #### 2. ⚙️ VM Manager (`vm_manager.py` | Port 8000)
 The **Infrastructure Layer**. It interacts directly with ESXi hosts via the VMware API (`pyVmomi`). 
