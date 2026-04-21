@@ -1,0 +1,312 @@
+<div class="app-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a10 10 0 1 0 10 10" />
+        <path d="M12 2v10l6.5-3" />
+        <path d="M12 12l3.5 6" />
+      </svg>
+    </div>
+    <h1>Carbon<span class="brand-text">Check</span></h1>
+    <p class="subtitle">Estimez l'empreinte carbone de vos équipements IT</p>
+  </header>
+
+  <main class="main-content">
+    <!-- Calculator Card -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20V10" />
+            <path d="M18 20V4" />
+            <path d="M6 20v-4" />
+          </svg>
+        </div>
+        <span>Calculateur</span>
+      </div>
+
+      <!-- Step 1: Category -->
+      <div class="form-group">
+        <label class="form-label">
+          <span class="step-badge">1</span>
+          Catégorie d'appareil
+        </label>
+        <div class="select-wrapper">
+          <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="7" x="3" y="3" rx="1" />
+            <rect width="7" height="7" x="14" y="3" rx="1" />
+            <rect width="7" height="7" x="14" y="14" rx="1" />
+            <rect width="7" height="7" x="3" y="14" rx="1" />
+          </svg>
+          <select class="select-input" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()">
+            <option value="">Choisir une catégorie…</option>
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+          <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Step 2: Manufacturer -->
+      <div class="form-group" *ngIf="selectedCategory">
+        <label class="form-label">
+          <span class="step-badge">2</span>
+          Fabricant
+        </label>
+        <div class="select-wrapper">
+          <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+          </svg>
+          <select class="select-input" [(ngModel)]="selectedManufacturer" (ngModelChange)="onManufacturerChange()">
+            <option value="">Choisir un fabricant…</option>
+            <option *ngFor="let m of manufacturers" [value]="m">{{ m }}</option>
+          </select>
+          <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Step 3: Model -->
+      <div class="form-group" *ngIf="selectedManufacturer">
+        <label class="form-label">
+          <span class="step-badge">3</span>
+          Modèle
+        </label>
+        <div class="select-wrapper">
+          <svg class="select-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+            <path d="M12 18h.01" />
+          </svg>
+          <select class="select-input" [(ngModel)]="selectedDeviceId" (ngModelChange)="onDeviceChange()">
+            <option [ngValue]="null">Choisir un modèle…</option>
+            <option *ngFor="let d of devices" [ngValue]="d.id">{{ d.name }}</option>
+          </select>
+          <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Device Info Chips -->
+      <div class="device-info" *ngIf="selectedDevice">
+        <div class="info-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          {{ selectedDevice.subcategory || selectedDevice.category }}
+        </div>
+        <div class="info-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          {{ selectedDevice.lifetime }} ans
+        </div>
+        <div class="info-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10" />
+            <path d="M12 12V2" />
+          </svg>
+          {{ (selectedDevice.gwp_total | number:'1.0-0') }} kg CO₂eq
+        </div>
+      </div>
+
+      <!-- Step 4: Years of use -->
+      <div class="form-group slider-group" *ngIf="selectedDeviceId">
+        <label class="form-label">
+          <span class="step-badge">4</span>
+          Durée d'utilisation
+          <span class="years-badge">{{ yearsOfUse }} ans</span>
+        </label>
+        <div class="slider-track-container">
+          <span class="slider-min">1</span>
+          <input type="range" class="slider" min="1" max="10" step="0.5" [(ngModel)]="yearsOfUse">
+          <span class="slider-max">10</span>
+        </div>
+        <div class="slider-ticks">
+          <span *ngFor="let t of [1,2,3,4,5,6,7,8,9,10]" class="tick">{{ t }}</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" [disabled]="!selectedDeviceId || loading" (click)="calculate()"
+        *ngIf="selectedDeviceId">
+        <svg *ngIf="!loading" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+        <span class="loader" *ngIf="loading"></span>
+        <span>{{ loading ? 'Calcul en cours…' : 'Analyser l\'impact' }}</span>
+      </button>
+
+      <div class="error-msg" *ngIf="error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" x2="12" y1="8" y2="12" />
+          <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+        {{ error }}
+      </div>
+    </section>
+
+    <!-- Results Card -->
+    <section class="card result-card" *ngIf="result">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+          </svg>
+        </div>
+        <span>Résultats</span>
+        <span class="impact-badge" [ngClass]="impactLevel">
+          {{ impactLevel === 'low' ? '● Faible' : impactLevel === 'medium' ? '● Modéré' : '● Élevé' }}
+        </span>
+      </div>
+
+      <!-- Total value -->
+      <div class="result-hero">
+        <div class="total-impact-value" [ngClass]="'impact-' + impactLevel">
+          {{ result.total_impact | number:'1.1-1' }}
+        </div>
+        <div class="total-impact-unit">kg CO₂ équivalent · {{ result.years_of_use }} an{{ result.years_of_use > 1 ?
+          's' : '' }}</div>
+        <div class="device-name-label">{{ result.device.manufacturer }} — {{ result.device.name }}</div>
+      </div>
+
+      <!-- Breakdown bars -->
+      <div class="breakdown-list">
+        <div class="breakdown-item">
+          <div class="bar-label">
+            <div class="bar-label-left">
+              <div class="bar-dot dot-mfg"></div>
+              <span>Fabrication</span>
+            </div>
+            <span class="bar-value">{{ result.manufacturing_impact | number:'1.1-1' }} kg</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill bar-mfg" [style.width.%]="manufacturingPercent"></div>
+          </div>
+          <div class="bar-pct">{{ manufacturingPercent | number:'1.0-0' }}%</div>
+        </div>
+
+        <div class="breakdown-item">
+          <div class="bar-label">
+            <div class="bar-label-left">
+              <div class="bar-dot dot-use"></div>
+              <span>Utilisation ({{ result.years_of_use }} ans)</span>
+            </div>
+            <span class="bar-value">{{ result.use_impact | number:'1.1-1' }} kg</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill bar-use" [style.width.%]="usePercent"></div>
+          </div>
+          <div class="bar-pct">{{ usePercent | number:'1.0-0' }}%</div>
+        </div>
+      </div>
+
+      <!-- Equivalences -->
+      <div class="equiv-section">
+        <div class="equiv-title">Équivalences</div>
+        <div class="comparison-grid">
+          <div class="comparison-item">
+            <div class="comp-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+                <circle cx="7" cy="17" r="2" />
+                <path d="M9 17h6" />
+                <circle cx="17" cy="17" r="2" />
+              </svg>
+            </div>
+            <span class="comp-value">{{ result.equivalences.car_km | number:'1.0-0' }}</span>
+            <span class="comp-unit">km en voiture</span>
+            <span class="comp-label">0.21 kg CO₂/km</span>
+          </div>
+
+          <div class="comparison-item">
+            <div class="comp-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                <path d="M12 18h.01" />
+              </svg>
+            </div>
+            <span class="comp-value">{{ result.equivalences.smartphone_charges | number:'1.0-0' }}</span>
+            <span class="comp-unit">recharges</span>
+            <span class="comp-label">smartphone ≈ 5Wh</span>
+          </div>
+
+          <div class="comparison-item">
+            <div class="comp-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 19.5 2c-2-2-4-1.5-5.5 0L10.5 5.5 2.8 6.8a1 1 0 0 0-.5 1.7l3 3" />
+                <path d="m6 12-1.5 4 4-1.5" />
+                <path d="m12 17.5 3 3a1 1 0 0 0 1.7-.5l1.5-7.5" />
+              </svg>
+            </div>
+            <span class="comp-value">{{ result.equivalences.flight_km | number:'1.0-0' }}</span>
+            <span class="comp-unit">km en avion</span>
+            <span class="comp-label">vol économique</span>
+          </div>
+
+          <div class="comparison-item">
+            <div class="comp-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-7l-2-2" />
+                <path d="M17 8v.8A6 6 0 0 1 13.8 20H10A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z" />
+                <path d="m14 14-2 2" />
+              </svg>
+            </div>
+            <span class="comp-value">{{ result.equivalences.tree_years | number:'1.1-1' }}</span>
+            <span class="comp-unit">ans · arbre</span>
+            <span class="comp-label">absorption CO₂</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reset Button -->
+      <button class="btn-reset" (click)="reset()" style="margin-top: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+        Nouvelle analyse
+      </button>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
+        <path
+          d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+      </svg>
+      Données Boavizta · ADEME 2023 · IRT46 Hackathon 2026
+    </div>
+  </footer>
+</div>
