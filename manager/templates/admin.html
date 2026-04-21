@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            color: #333;
+            background: #fff;
+            padding: 16px 24px;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+        }
+        .header h1 { font-size: 17px; font-weight: 600; color: #111; }
+        .header .ts { font-size: 11px; color: #999; }
+
+        /* Sections */
+        .section {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        /* State indicators */
+        .state-row {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .state-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .state-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        .state-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111;
+        }
+        .state-value.offline { color: #ccc; }
+
+        /* Status dot */
+        .dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .dot-green { background: #34a853; }
+        .dot-yellow { background: #f9ab00; }
+        .dot-red { background: #ea4335; }
+        .dot-gray { background: #ccc; }
+
+        /* VM Cards */
+        .vm-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .vm-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 3px;
+            padding: 8px 12px;
+            min-width: 160px;
+            flex: 1;
+        }
+        .vm-card .vm-name { font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+        .vm-card .vm-detail { font-size: 11px; color: #777; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 3px 10px;
+            font-size: 11px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #fff;
+            cursor: pointer;
+            color: #333;
+            font-family: inherit;
+        }
+        .btn:hover { background: #f5f5f5; }
+        .btn:active { background: #eee; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-up { border-color: #34a853; color: #34a853; }
+        .btn-up:hover { background: #f0faf3; }
+        .btn-down { border-color: #ea4335; color: #ea4335; }
+        .btn-down:hover { background: #fef0ef; }
+        .btn-blue { border-color: #4285f4; color: #4285f4; }
+        .btn-blue:hover { background: #f0f6ff; }
+        .btn-warn { border-color: #f9ab00; color: #946800; }
+        .btn-warn:hover { background: #fff8e5; }
+
+        .controls-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Metrics bars */
+        .metrics-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .metric-card {
+            border: 1px solid #eee;
+            border-radius: 3px;
+            padding: 6px 10px;
+            min-width: 180px;
+            flex: 1;
+        }
+        .metric-card .metric-host { font-size: 10px; color: #999; margin-bottom: 3px; }
+        .bar-row { display: flex; align-items: center; gap: 5px; margin: 2px 0; }
+        .bar-label { font-size: 10px; color: #999; width: 26px; text-align: right; }
+        .bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 2px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+        .bar-fill-cpu { background: #4285f4; }
+        .bar-fill-ram { background: #34a853; }
+        .bar-fill-disk { background: #f9ab00; }
+        .bar-val { font-size: 10px; color: #666; width: 30px; }
+
+        /* App table */
+        .app-table { width: 100%; border-collapse: collapse; }
+        .app-table th {
+            text-align: left; font-size: 10px; font-weight: 600; color: #999;
+            text-transform: uppercase; padding: 3px 6px; border-bottom: 1px solid #ddd;
+        }
+        .app-table td {
+            padding: 5px 6px; border-bottom: 1px solid #f0f0f0; font-size: 12px;
+            vertical-align: middle;
+        }
+        .app-actions { display: flex; gap: 3px; }
+
+        /* LB table */
+        .lb-table { width: 100%; border-collapse: collapse; }
+        .lb-table th {
+            text-align: left; font-size: 10px; font-weight: 600; color: #999;
+            text-transform: uppercase; padding: 3px 6px; border-bottom: 1px solid #ddd;
+        }
+        .lb-table td { padding: 4px 6px; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+
+        /* RPM input */
+        .rpm-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .rpm-input {
+            width: 70px;
+            padding: 3px 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: inherit;
+        }
+
+        /* Logs */
+        .logs-box {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 3px;
+            padding: 6px 8px;
+            height: 180px;
+            overflow-y: auto;
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-size: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .log-line { white-space: pre-wrap; word-break: break-all; }
+        .log-ts { color: #999; }
+        .log-src { color: #4285f4; }
+        .log-lvl-info { color: #34a853; }
+        .log-lvl-error { color: #ea4335; }
+        .log-lvl-warning { color: #f9ab00; }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 14px; right: 14px;
+            background: #333; color: #fff;
+            padding: 6px 14px; border-radius: 3px; font-size: 11px;
+            opacity: 0; transition: opacity 0.3s; z-index: 100;
+        }
+        .toast.show { opacity: 1; }
+
+        /* Badges */
+        .badge {
+            display: inline-block; font-size: 10px; padding: 1px 7px;
+            border-radius: 3px; margin-left: 6px;
+        }
+        .badge-transit { background: #fff3e0; color: #e65100; border: 1px solid #ffcc02; }
+        .badge-locked { background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+        .badge-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .badge-paused { background: #fff3e0; color: #e65100; border: 1px solid #ffcc02; }
+        .badge-auto { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+
+        .sep { border: none; border-top: 1px solid #eee; margin: 8px 0; }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<div class="header">
+    <h1>Infrastructure Admin</h1>
+    <span class="ts" id="clock"></span>
+</div>
+
+<!-- SYSTEM STATE (prominent) -->
+<div class="section">
+    <div class="section-title">System State</div>
+    <div class="state-row">
+        <div class="state-box">
+            <span class="state-label">VM State</span>
+            <span class="state-value" id="e-state">--</span>
+        </div>
+        <div class="state-box">
+            <span class="state-label">Docker State</span>
+            <span class="state-value" id="d-state">--</span>
+        </div>
+        <span id="sys-badges"></span>
+    </div>
+</div>
+
+<!-- VM MANAGER -->
+<div class="section">
+    <div class="section-title">VM Manager</div>
+    <div class="vm-row" id="vm-cards">
+        <div class="vm-card"><span class="vm-detail">Loading...</span></div>
+    </div>
+    <div class="controls-row">
+        <button class="btn btn-up" onclick="vmAction('up')">VM Scale Up</button>
+        <button class="btn btn-down" onclick="vmAction('down')">VM Scale Down</button>
+    </div>
+</div>
+
+<!-- HOST METRICS -->
+<div class="section">
+    <div class="section-title">Host Metrics</div>
+    <div class="metrics-row" id="metrics-cards">
+        <div class="metric-card"><span class="metric-host">Loading...</span></div>
+    </div>
+</div>
+
+<!-- APPLICATIONS (clearly separate from VM) -->
+<div class="section">
+    <div class="section-title">Applications (Docker Manager)</div>
+    <table class="app-table">
+        <thead>
+            <tr>
+                <th>App</th>
+                <th>Frontend</th>
+                <th>Backend</th>
+                <th>DB</th>
+                <th>Port</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="app-rows">
+            <tr><td colspan="7" style="color:#999;">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- LOAD BALANCER & MANUAL RPM -->
+<div class="section">
+    <div class="section-title">Load Balancer</div>
+    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+        <!-- Manual Panel -->
+        <div id="panel-manual" style="flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 12px; transition: opacity 0.3s;">
+            <div style="font-size:11px; font-weight:bold; margin-bottom:8px; color:#555;">MANUAL OVERRIDE</div>
+            <div class="controls-row" style="margin-bottom:8px;">
+                <span id="lb-mode-badge"></span>
+                <button class="btn btn-warn" id="btn-lb-pause" onclick="lbPause()">Enable Manual Mode</button>
+                <button class="btn btn-up" id="btn-lb-resume" onclick="lbResume()">Disable Manual Mode</button>
+            </div>
+            <div class="rpm-row">
+                <span style="font-size:11px;color:#666;">Inject RPM:</span>
+                <input type="number" class="rpm-input" id="rpm-input" min="0" max="100" placeholder="0">
+                <button class="btn btn-blue" id="btn-send-manual" onclick="sendRpm()">Send</button>
+            </div>
+        </div>
+        
+        <!-- Simulator Panel -->
+        <div id="panel-sim" style="flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 12px; transition: opacity 0.3s;">
+            <div style="font-size:11px; font-weight:bold; margin-bottom:8px; color:#555;">TRAFFIC SIMULATOR</div>
+            <div class="controls-row" style="margin-bottom:8px;">
+                <span id="sim-status-badge"><span class="badge badge-gray">Stopped</span></span>
+                <span style="font-size:11px;color:#999;" id="sim-current-rpm"></span>
+            </div>
+            <div class="rpm-row">
+                <span style="font-size:11px;color:#666;">Target RPM:</span>
+                <input type="number" class="rpm-input" id="sim-input" min="0" max="1000" placeholder="0">
+                <button class="btn btn-blue" id="btn-send-sim" onclick="setSimulator()">Start Traffic</button>
+                <button class="btn" id="btn-stop-sim" onclick="stopSimulator()">Stop</button>
+            </div>
+        </div>
+    </div>
+    <hr class="sep">
+    <table class="lb-table">
+        <thead>
+            <tr>
+                <th>Frontend URL</th>
+                <th>Total</th>
+                <th>Success</th>
+                <th>Failed</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="lb-rows">
+            <tr><td colspan="5" style="color:#999;">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- LOGS -->
+<div class="section">
+    <div class="section-title">Activity Log</div>
+    <div class="logs-box" id="logs-box">
+        <div class="log-line" style="color:#999;">Loading logs...</div>
+    </div>
+</div>
+
+<script>
+    const API = '';
+    const REFRESH_MS = 20000;  // 20s — 3 times per minute
+    const LOG_REFRESH_MS = 5000;
+    const METRICS_REFRESH_MS = 15000; // metrics even slower
+
+    const APP_REGISTRY = {
+        app1: { frontend: { vm: "AlpineV",  port: 8081 }, backend: { vm: "AlpineV",  port: 5001 }, db: { vm: "AlpineV",  port: 5433 } },
+        app2: { frontend: { vm: "AlpineV2", port: 8082 }, backend: { vm: "AlpineV",  port: 5002 }, db: { vm: "AlpineV",  port: 5434 } },
+        app3: { frontend: { vm: "AlpineV2", port: 8083 }, backend: { vm: "AlpineV2", port: 5003 }, db: { vm: "AlpineV2", port: 5435 } },
+        app4: { frontend: { vm: "AlpineV3", port: 8084 }, backend: { vm: "AlpineV3", port: 5004 }, db: { vm: "AlpineV2", port: 5436 } },
+        app5: { frontend: { vm: "AlpineV3", port: 8085 }, backend: { vm: "AlpineV3", port: 5005 }, db: { vm: "AlpineV3", port: 5437 } },
+    };
+
+    let lastVmData = null;
+    let lastLbStats = null;
+    let lastAppsData = {};
+
+    // Toast
+    function showToast(msg, dur = 2500) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), dur);
+    }
+
+    // Clock
+    function updateClock() {
+        document.getElementById('clock').textContent = new Date().toLocaleString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Fetch helpers
+    async function fetchJson(url) {
+        try {
+            const r = await fetch(API + url);
+            if (!r.ok) return null;
+            return await r.json();
+        } catch (e) { return null; }
+    }
+    async function postAction(url) {
+        try {
+            const r = await fetch(API + url, { method: 'POST' });
+            return await r.json();
+        } catch (e) { return null; }
+    }
+
+    // ---- VM STATUS ----
+    function dotClass(status) {
+        if (!status) return 'dot-gray';
+        const s = status.toLowerCase();
+        if (s === 'running') return 'dot-green';
+        if (s === 'suspended') return 'dot-yellow';
+        return 'dot-gray';
+    }
+    function statusLabel(s) {
+        if (!s) return 'Unknown';
+        s = s.toLowerCase();
+        if (s === 'running') return 'Running';
+        if (s === 'suspended') return 'Suspended';
+        if (s === 'not_deployed') return 'Not Deployed';
+        return s;
+    }
+
+    async function refreshVmStatus() {
+        const data = await fetchJson('/api/vm/status');
+        if (!data || data.error) return;
+        lastVmData = data;
+
+        // VM cards
+        const container = document.getElementById('vm-cards');
+        const vms = data.vms || [];
+        container.innerHTML = vms.map(vm => `
+            <div class="vm-card">
+                <div class="vm-name"><span class="dot ${dotClass(vm.status)}"></span>${vm.name}</div>
+                <div class="vm-detail">Host: ${vm.host}</div>
+                <div class="vm-detail">IP: ${vm.ip || '—'}</div>
+                <div class="vm-detail">Status: ${statusLabel(vm.status)}</div>
+            </div>
+        `).join('');
+
+        // E-state
+        const eState = document.getElementById('e-state');
+        const idx = data.state_index;
+        if (idx >= 0 && idx <= 2) {
+            eState.textContent = 'E' + idx;
+            eState.className = 'state-value';
+        } else {
+            eState.textContent = 'E?';
+            eState.className = 'state-value offline';
+        }
+
+        // System badges
+        const badges = document.getElementById('sys-badges');
+        let b = '';
+        if (data.transitioning) b += '<span class="badge badge-transit">Transitioning</span>';
+        if (data.intervention_required) b += '<span class="badge badge-locked">Intervention Required</span>';
+        badges.innerHTML = b;
+    }
+
+    // ---- DOCKER STATE ----
+    async function refreshDockerState() {
+        const data = await fetchJson('/api/docker/health');
+        const el = document.getElementById('d-state');
+        if (!data || data.error || data.state === 'OFFLINE') {
+            el.textContent = data?.state || 'OFFLINE';
+            el.className = 'state-value offline';
+        } else {
+            el.textContent = data.state;
+            el.className = 'state-value';
+        }
+    }
+
+    // ---- METRICS ----
+    async function refreshMetrics() {
+        const data = await fetchJson('/api/vm/metrics');
+        if (!data || !data.hosts) return;
+        const container = document.getElementById('metrics-cards');
+        container.innerHTML = data.hosts.map(h => {
+            if (h.error) return `<div class="metric-card"><div class="metric-host">${h.ip}</div><div style="font-size:10px;color:#ea4335;">Error</div></div>`;
+            return `<div class="metric-card">
+                <div class="metric-host">${h.ip}</div>
+                ${bar('CPU', h.cpu_usage_pct, 'cpu')}
+                ${bar('RAM', h.ram_usage_pct, 'ram')}
+                ${bar('Disk', h.disk_usage_pct, 'disk')}
+            </div>`;
+        }).join('');
+    }
+    function bar(label, pct, type) {
+        const w = Math.min(Math.max(pct || 0, 0), 100);
+        return `<div class="bar-row"><span class="bar-label">${label}</span><div class="bar-track"><div class="bar-fill bar-fill-${type}" style="width:${w}%"></div></div><span class="bar-val">${w}%</span></div>`;
+    }
+
+    // ---- APPS ----
+    function refreshApps() {
+        const tbody = document.getElementById('app-rows');
+        const lbStats = lastLbStats || {};
+        const activeUrls = new Set(Object.keys(lbStats));
+
+        let rows = '';
+        for (const [appName, conf] of Object.entries(APP_REGISTRY)) {
+            const id = appName.replace('app', '');
+            const port = conf.frontend.port;
+
+            let appStatus = 'stopped', statusDot = 'dot-gray';
+            if (lastAppsData && lastAppsData[appName]) {
+                appStatus = 'running'; statusDot = 'dot-green';
+            }
+
+            let visitBtn = `<button class="btn" disabled>Visit</button>`;
+            if (lastVmData && lastVmData.vms) {
+                const fVm = lastVmData.vms.find(v => v.name === conf.frontend.vm);
+                if (fVm && fVm.ip && fVm.ip !== 'N/A' && (fVm.status||'').toLowerCase() === 'running') {
+                    visitBtn = `<a class="btn" style="text-decoration:none; color:inherit;" href="http://${fVm.ip}:${port}" target="_blank">Visit</a>`;
+                }
+            }
+
+            rows += `<tr>
+                <td><strong>${appName}</strong></td>
+                <td style="font-size:11px;">${conf.frontend.vm}</td>
+                <td style="font-size:11px;">${conf.backend.vm}</td>
+                <td style="font-size:11px;">${conf.db.vm}</td>
+                <td style="font-size:11px;">${port}</td>
+                <td><span class="dot ${statusDot}"></span>${appStatus}</td>
+                <td class="app-actions">
+                    <button class="btn btn-up" onclick="appAction(${id},'start')">Start</button>
+                    <button class="btn btn-blue" onclick="appAction(${id},'stop')">Stop</button>
+                    <button class="btn btn-down" onclick="appAction(${id},'delete')">Delete</button>
+                    ${visitBtn}
+                </td>
+            </tr>`;
+        }
+        tbody.innerHTML = rows;
+    }
+
+    // ---- LOAD BALANCER ----
+    async function refreshLb() {
+        const data = await fetchJson('/api/lb/stats');
+        if (!data) return;
+        lastLbStats = data;
+        const tbody = document.getElementById('lb-rows');
+        const entries = Object.entries(data);
+        if (entries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:#999;">No active backends</td></tr>';
+            return;
+        }
+        tbody.innerHTML = entries.map(([url, s]) =>
+            `<tr><td><code style="font-size:11px;">${url}</code></td><td>${s.total||0}</td><td>${s.success||0}</td><td>${s.fail||0}</td><td><span class="dot dot-green"></span>Active</td></tr>`
+        ).join('');
+    }
+
+    async function refreshLbMode() {
+        const data = await fetchJson('/api/lb/rpm-status');
+        const badge = document.getElementById('lb-mode-badge');
+        const panelManual = document.getElementById('panel-manual');
+        const panelSim = document.getElementById('panel-sim');
+        const btnManual = document.getElementById('btn-send-manual');
+        const btnSimStart = document.getElementById('btn-send-sim');
+        const btnSimStop = document.getElementById('btn-stop-sim');
+
+        if (data && data.paused) {
+            badge.innerHTML = '<span class="badge badge-paused">Manual</span>';
+            panelManual.style.opacity = '1';
+            panelSim.style.opacity = '0.4';
+            btnSimStart.disabled = true;
+            btnSimStop.disabled = true;
+            btnManual.disabled = false;
+        } else {
+            badge.innerHTML = '<span class="badge badge-auto">Automatic</span>';
+            panelManual.style.opacity = '0.4';
+            panelSim.style.opacity = '1';
+            btnSimStart.disabled = false;
+            btnSimStop.disabled = false;
+            btnManual.disabled = true;
+        }
+    }
+
+    async function refreshSimMode() {
+        const data = await fetchJson('/api/simulator/status');
+        const badge = document.getElementById('sim-status-badge');
+        const rpmText = document.getElementById('sim-current-rpm');
+        if (data && data.active) {
+            badge.innerHTML = '<span class="badge badge-ok">Simulating</span>';
+            rpmText.textContent = `(${data.current_rpm} RPM)`;
+        } else {
+            badge.innerHTML = '<span class="badge badge-gray" style="background:#f0f0f0; border:1px solid #ccc;">Stopped</span>';
+            rpmText.textContent = '';
+        }
+    }
+
+    async function setSimulator() {
+        const val = document.getElementById('sim-input').value;
+        if (val === '') { showToast('Enter target RPM'); return; }
+        showToast(`Starting simulator at ${val} RPM...`);
+        await postAction(`/api/simulator/simulate?rpm=${val}`);
+        refreshSimMode();
+    }
+
+    async function stopSimulator() {
+        showToast('Stopping simulator...');
+        await postAction(`/api/simulator/simulate?rpm=0`);
+        refreshSimMode();
+    }
+
+    // ---- LOGS ----
+    async function refreshLogs() {
+        const data = await fetchJson('/api/logs/recent?n=80');
+        if (!data || !data.lines) return;
+        const box = document.getElementById('logs-box');
+        const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 20;
+        box.innerHTML = data.lines.map(line => {
+            const parts = line.split(' | ');
+            if (parts.length >= 4) {
+                const ts = parts[0], src = parts[1], lvl = parts[2].trim().toLowerCase(), msg = parts.slice(3).join(' | ');
+                const cls = lvl === 'error' ? 'log-lvl-error' : (lvl === 'warning' ? 'log-lvl-warning' : 'log-lvl-info');
+                return `<div class="log-line"><span class="log-ts">${ts}</span> <span class="log-src">${src}</span> <span class="${cls}">${parts[2].trim()}</span> ${msg}</div>`;
+            }
+            return `<div class="log-line">${line}</div>`;
+        }).join('');
+        if (wasAtBottom) box.scrollTop = box.scrollHeight;
+    }
+
+    // ---- ACTIONS ----
+    async function vmAction(dir) {
+        showToast(`VM ${dir.toUpperCase()}...`);
+        const r = await postAction(`/api/vm/${dir}`);
+        showToast(r?.message || r?.status || 'Done');
+        setTimeout(refreshCore, 1500);
+    }
+
+    async function appAction(id, action) {
+        showToast(`app${id} ${action}...`);
+        const r = await postAction(`/api/app/${id}/${action}`);
+        showToast(r?.message || r?.details || 'Done');
+        setTimeout(refreshCore, 1500);
+    }
+
+    async function sendRpm() {
+        const val = document.getElementById('rpm-input').value;
+        if (val === '') { showToast('Enter an RPM value'); return; }
+        showToast(`Sending RPM ${val}...`);
+        const r = await postAction(`/api/rpm?rpm=${val}`);
+        showToast(r?.current_state ? `State: ${r.current_state}` : 'Sent');
+        setTimeout(refreshCore, 1500);
+    }
+
+    async function lbPause() {
+        showToast('Pausing LB (manual mode)...');
+        await postAction('/api/lb/pause');
+        refreshLbMode();
+    }
+    async function lbResume() {
+        showToast('Resuming LB (automatic)...');
+        await postAction('/api/lb/resume');
+        refreshLbMode();
+    }
+
+    // ---- REFRESH ----
+    async function refreshCore() {
+        lastAppsData = await fetchJson('/api/apps/status') || {};
+        await refreshLb();
+        await Promise.all([refreshVmStatus(), refreshDockerState()]);
+        refreshApps();
+        refreshLbMode();
+        refreshSimMode();
+    }
+
+    refreshCore();
+    refreshMetrics();
+    refreshLogs();
+
+    setInterval(refreshCore, REFRESH_MS);
+    setInterval(refreshMetrics, METRICS_REFRESH_MS);
+    setInterval(refreshLogs, LOG_REFRESH_MS);
+</script>
+</body>
+</html>

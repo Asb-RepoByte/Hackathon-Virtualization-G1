@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  vm_manager:
+    build: .
+    command: python vm_manager.py
+    network_mode: host
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./logs:/app/logs
+      - .:/app
+    restart: unless-stopped
+
+  docker_manager:
+    build: .
+    command: python docker_manager.py
+    network_mode: host
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./logs:/app/logs
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - vm_manager
+    restart: unless-stopped
+
+  load_balancer:
+    build: .
+    command: python load_balancer.py
+    network_mode: host
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    depends_on:
+      - docker_manager
+    restart: unless-stopped
+
+  admin:
+    build: .
+    command: python admin_server.py
+    network_mode: host
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    depends_on:
+      - vm_manager
+      - docker_manager
+      - load_balancer
+    restart: unless-stopped
+
+  traffic_simulator:
+    build: .
+    command: python simulator_service.py
+    network_mode: host
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+    restart: unless-stopped

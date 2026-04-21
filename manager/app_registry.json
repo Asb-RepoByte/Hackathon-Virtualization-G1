@@ -1,0 +1,72 @@
+{
+  "app1": {
+    "frontend": {
+      "vm": "AlpineV",
+      "port": 8081
+    },
+    "backend": {
+      "vm": "AlpineV",
+      "port": 5001
+    },
+    "db": {
+      "vm": "AlpineV",
+      "port": 5433
+    }
+  },
+  "app2": {
+    "frontend": {
+      "vm": "AlpineV2",
+      "port": 8082
+    },
+    "backend": {
+      "vm": "AlpineV",
+      "port": 5002
+    },
+    "db": {
+      "vm": "AlpineV",
+      "port": 5434
+    }
+  },
+  "app3": {
+    "frontend": {
+      "vm": "AlpineV2",
+      "port": 8083
+    },
+    "backend": {
+      "vm": "AlpineV2",
+      "port": 5003
+    },
+    "db": {
+      "vm": "AlpineV2",
+      "port": 5435
+    }
+  },
+  "app4": {
+    "frontend": {
+      "vm": "AlpineV3",
+      "port": 8084
+    },
+    "backend": {
+      "vm": "AlpineV3",
+      "port": 5004
+    },
+    "db": {
+      "vm": "AlpineV2",
+      "port": 5436
+    }
+  },
+  "app5": {
+    "frontend": {
+      "vm": "AlpineV3",
+      "port": 8085
+    },
+    "backend": {
+      "vm": "AlpineV3",
+      "port": 5005
+    },
+    "db": {
+      "vm": "AlpineV3",
+      "port": 5437
+    }
+  }
+}
